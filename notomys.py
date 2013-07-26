@@ -16,6 +16,7 @@ class MouseListener(Leap.Listener):
 		self.fingerId = 0
 		self.thumbId = 0
 		self.seenIds = []
+		self.mouseDown = False
 		print "Initialized"
 
 	def on_connect(self, controller):
@@ -44,14 +45,16 @@ class MouseListener(Leap.Listener):
 				self.thumbId = fingers[len(fingers) - 1].id
 
 			if not fingers.empty:
-				if frame.finger(self.thumbId).id == -1:
-					print "thumb lost"
+				if frame.finger(self.thumbId).id == -1 and time.time() - self.thumbVanishTime > 0.5 and not self.mouseDown:
+					print "down"
 					self.thumbVanishTime = time.time()
-				elif time.time() - self.thumbVanishTime < 1 and time.time() - self.lastClickTime > 0.5:
-						print "click"
-						self.mg.click(1)
-						self.lastClickTime = time.time()
-						self.thumbVanishTime = 0
+					self.mg.click_down(1)
+					self.mouseDown = True
+				elif frame.finger(self.thumbId).id != -1 and self.mouseDown:
+					print "up"
+					self.mg.click_up(1)
+					self.lastClickTime = time.time()
+					self.mouseDown = False
 
 				finger = frame.finger(self.fingerId)
 				currentX = finger.tip_position.x
