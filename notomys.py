@@ -45,12 +45,12 @@ class MouseListener(Leap.Listener):
 				self.thumbId = fingers[len(fingers) - 1].id
 
 			if not fingers.empty:
-				if frame.finger(self.thumbId).id == -1 and time.time() - self.thumbVanishTime > 0.5 and not self.mouseDown:
+				if frame.finger(self.thumbId).id == -1 and frame.finger(self.fingerId).id != -1 and time.time() - self.thumbVanishTime > 0.5 and not self.mouseDown:
 					print "down"
 					self.thumbVanishTime = time.time()
 					self.mg.click_down(1)
 					self.mouseDown = True
-				elif frame.finger(self.thumbId).id != -1 and self.mouseDown:
+				elif (frame.finger(self.thumbId).id != -1 and self.mouseDown) or (frame.finger(self.thumbId).id == -1 and frame.finger(self.fingerId).id == -1):
 					print "up"
 					self.mg.click_up(1)
 					self.lastClickTime = time.time()
