@@ -35,7 +35,6 @@ class MouseListener(Leap.Listener):
 		if not frame.hands.empty:
 			# Get the first hand
 			hand = frame.hands[0]
-			self.seenIds = []
 		
 			# Check if the hand has any fingers
 			fingers = hand.fingers
@@ -45,15 +44,14 @@ class MouseListener(Leap.Listener):
 				self.thumbId = fingers[len(fingers) - 1].id
 
 			if not fingers.empty:
-				if self.lastFingerCount == len(fingers) + 1 and self.lastFingerCount > 1:
+				if frame.finger(self.thumbId).id == -1:
 					print "thumb lost"
 					self.thumbVanishTime = time.time()
-				elif self.lastFingerCount == len(fingers) - 1 and self.lastFingerCount > 0:
-					print "thumb gained"
-					if time.time() - self.thumbVanishTime < 1 and time.time() - self.lastClickTime > 0.25:
+				elif time.time() - self.thumbVanishTime < 1 and time.time() - self.lastClickTime > 0.5:
 						print "click"
 						self.mg.click(1)
 						self.lastClickTime = time.time()
+						self.thumbVanishTime = 0
 
 				finger = frame.finger(self.fingerId)
 				currentX = finger.tip_position.x
@@ -72,6 +70,7 @@ class MouseListener(Leap.Listener):
 				self.lastY = -1
 			self.lastFingerCount = len(fingers)
 
+			self.seenIds = []
 			for f in fingers:
 				self.seenIds.append(f.id)
 
